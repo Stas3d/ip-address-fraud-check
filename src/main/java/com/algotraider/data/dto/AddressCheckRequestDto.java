@@ -3,7 +3,7 @@ package com.algotraider.data.dto;
 import lombok.Data;
 
 @Data
-public class CheckIpDto {
+public class AddressCheckRequestDto {
 
     private String source;
     private String address;

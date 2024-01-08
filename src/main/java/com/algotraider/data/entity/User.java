@@ -7,6 +7,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Getter
@@ -26,9 +27,6 @@ public class User {
     @Property("email")
     private String email;
 
-//    @Property("userEmail")
-//    private String userEmail;
-
     @Property("registered")
     private Long registeredFrom;
 
@@ -40,4 +38,13 @@ public class User {
 
     @Relationship(type = "LOGGED_FROM", direction = Relationship.Direction.INCOMING)
     private List<Address> addressList;
+
+    //TODO: refactor/test helper method
+    public void associateNewAddress(final Address address) {
+
+        if (addressList.isEmpty()) {
+            addressList = new ArrayList<>();
+        }
+        addressList.add(address);
+    }
 }

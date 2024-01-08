@@ -3,7 +3,7 @@ package com.algotraider.data.dto;
 import lombok.Data;
 
 @Data
-public class CheckUserDto {
+public class UserCheckRequestDto {
 
     private String source;
     private String userEmail;
