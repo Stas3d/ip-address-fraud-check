@@ -1,6 +1,5 @@
 package com.algotraider.data.validation;
 
-
 import com.algotraider.data.exception.InvalidIpAddressException;
 import com.algotraider.data.exception.InvalidMailException;
 import org.apache.commons.validator.routines.EmailValidator;

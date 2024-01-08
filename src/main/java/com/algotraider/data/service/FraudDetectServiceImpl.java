@@ -1,8 +1,8 @@
 package com.algotraider.data.service;
 
-import com.algotraider.data.dto.CheckIpDto;
-import com.algotraider.data.dto.CheckUserDto;
-import com.algotraider.data.dto.LoginDto;
+import com.algotraider.data.dto.AddressCheckRequestDto;
+import com.algotraider.data.dto.UserCheckRequestDto;
+import com.algotraider.data.dto.LoginFormDto;
 import com.algotraider.data.dto.UpdateIpStatusDto;
 import com.algotraider.data.entity.Address;
 import com.algotraider.data.exception.UserCheckNotAllowedException;
@@ -26,14 +26,14 @@ public class FraudDetectServiceImpl implements FraudDetectService {
     private final AddressRepository addressRepository;
     private final ValidationService validation;
 
-    public boolean isUserBanned(final @NonNull CheckUserDto dto) {
+    public boolean checkIfUserBanned(final @NonNull UserCheckRequestDto dto) {
 
         validation.validateEmail(dto.getUserEmail());
         var user = userRepository.findByEmail(dto.getUserEmail());
         return (user != null) ? user.isBanned() : Boolean.FALSE;
     }
 
-    public boolean isIpAddressBanned(final @NonNull CheckIpDto dto) {
+    public boolean checkIfIpAddressBanned(final @NonNull AddressCheckRequestDto dto) {
 
         validation.validateIp(dto.getAddress());
         var address = addressRepository.findOneByIp(dto.getAddress());
@@ -56,7 +56,7 @@ public class FraudDetectServiceImpl implements FraudDetectService {
         return addressRepository.save(address).getIp();
     }
 
-    public boolean processLogin(final @NonNull LoginDto loginDtoForm) {
+    public boolean processLogin(final @NonNull LoginFormDto loginDtoForm) {
 
         var userEmail = loginDtoForm.getUserEmail();
         var currentIp = loginDtoForm.getAddress();
@@ -87,7 +87,7 @@ public class FraudDetectServiceImpl implements FraudDetectService {
         if (userName.isBlank()) throw new UserCheckNotAllowedException();
     }
 
-    private void saveNewIpUserRelation(final LoginDto loginDtoForm) {
+    private void saveNewIpUserRelation(final LoginFormDto loginDtoForm) {
 
         Address address = new Address(loginDtoForm.getAddress(), "");
         var linkedUser = userRepository.findByEmail(loginDtoForm.getUserEmail());

@@ -8,6 +8,7 @@ import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.time.Instant;
+import java.util.List;
 
 @Node("Address")
 @Getter
@@ -22,6 +23,9 @@ public class Address {
 
     @Id
     private String ip;
+
+    @Property("proxyIps")
+    private List<String> associatedProxyList;
 
     @Property("city")
     private String city;

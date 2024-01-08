@@ -5,7 +5,7 @@ import lombok.Data;
 import java.sql.Timestamp;
 
 @Data
-public class LoginDto {
+public class LoginFormDto {
 
     private String userEmail;
     private String info;

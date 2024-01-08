@@ -36,34 +36,6 @@ public class AddressAndUserRepositoryTest {
 
         registry.add("spring.neo4j.uri", neo4jContainer::getBoltUrl);
         registry.add("spring.neo4j.authentication.username", () -> "neo4j");
-//        registry.add("spring.neo4j.authentication.username", () -> "neo");
-//        registry.add("spring.neo4j.authentication.password", () -> "password");
         registry.add("spring.neo4j.authentication.password", neo4jContainer::getAdminPassword);
     }
-
-    @Test
-    void findSomethingShouldWork(@Autowired Neo4jClient client) {
-//        client.query("CREATE (b:Book {isbn: '978-0547928210', name: 'The Fellowship of the Ring', year: 1954})-[:WRITTEN_BY]->(a:Author {id: 1, name: 'J. R. R. Tolkien'})");
-        client.query("CREATE (b:Book {isbn: '978-0547928210', name: 'The Fellowship of the Ring', year: 1954})-[:WRITTEN_BY]->(a:Author {id: '1', name: 'J. R. R. Tolkien'})");
-        client.query("CREATE (b2:Book {isbn: '978-0547928203', name: 'The Two Towers', year: 1956})-[:WRITTEN_BY]->(a)");
-
-
-//        Optional<Long> result = client.query("MATCH (a) RETURN COUNT(a)")
-//        Optional<String> result = client.query("MATCH (n:Book {name: 'The Two Towers'}) RETURN n")
-        Optional<String> result = client.query("MATCH (n:Author {id: '1'}) RETURN n")
-                .fetchAs(String.class)
-                .one();
-
-        Assertions.assertEquals(Boolean.FALSE, result.isPresent());
-//        Assertions.assertEquals("0L", result.get());
-    }
-
-//    @Test
-//    public void findSomethingShouldWork1(@Autowired Neo4jClient client) {
-//        client.query("CREATE (b2:Book {isbn: '978-0547928203', title: 'The Two Towers', year: 1956})");
-//        Optional<Long> result = client.query("MATCH (n) RETURN COUNT(n)")
-//                .fetchAs(Long.class)
-//                .one();
-//        assertThat(result).hasValue(0L);
-//    }
 }
