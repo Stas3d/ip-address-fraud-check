@@ -18,6 +18,7 @@ public class Address {
     public Address(String ip, String meta) {
         this.ip = ip;
         this.meta = meta;
+//        this.banned = bannedStatus;
         this.registered = Instant.now().toEpochMilli();
     }
 
