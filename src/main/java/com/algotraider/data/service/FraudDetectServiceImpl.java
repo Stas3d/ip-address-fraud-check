@@ -27,7 +27,6 @@ public class FraudDetectServiceImpl implements FraudDetectService {
 
     private final UserRepository userRepository;
     private final AddressRepository addressRepository;
-    private final ValidationService validation;
 
     @Value("${failed.address.threshold.value:10}")
     private Long failedThresholdValue;
@@ -37,7 +36,7 @@ public class FraudDetectServiceImpl implements FraudDetectService {
 
     public boolean checkIfUserBanned(final @NonNull UserCheckRequestDto dto) {
 
-        if (!validation.validateEmail(dto.getUserEmail())) {
+        if (!ValidationService.validateEmail(dto.getUserEmail())) {
             throw new InvalidMailException(dto.getUserEmail());
         }
 
@@ -47,7 +46,7 @@ public class FraudDetectServiceImpl implements FraudDetectService {
 
     public boolean checkIfIpAddressBanned(final @NonNull AddressCheckRequestDto dto) {
 
-        if (!validation.validateIp(dto.getAddress())) {
+        if (!ValidationService.validateIp(dto.getAddress())) {
             throw new InvalidIpAddressException(dto.getAddress());
         }
 
@@ -58,7 +57,7 @@ public class FraudDetectServiceImpl implements FraudDetectService {
 
     public String updateIpAddressStatus(final @NonNull UpdateIpStatusDto dto) {
 
-        if (!validation.validateIp(dto.getAddress())) {
+        if (!ValidationService.validateIp(dto.getAddress())) {
             throw new InvalidIpAddressException(dto.getAddress());
         }
 
@@ -83,6 +82,8 @@ public class FraudDetectServiceImpl implements FraudDetectService {
         validateIpNotBlocked(loginDtoForm.getAddress());
         validateUserLinkedIpsNotBanned(loginDtoForm);
         saveNewIpUserRelationIfRequired(loginDtoForm);
+
+        recalculateAddressStatus(loginDtoForm.getAddress());
         return Boolean.TRUE;
     }
 
@@ -123,14 +124,19 @@ public class FraudDetectServiceImpl implements FraudDetectService {
     //Todo
     private Boolean validateUserLinkedIpsNotBanned(final @NonNull LoginFormDto loginDtoForm) {
 
-//        var firstCheck = userRepository.findAddresses(loginDtoForm.getUserEmail())
-//                .stream()
-//                .filter(Address::isBanned)
-//                .noneMatch(u ->
-//                        Objects.equals(u.getIp(), loginDtoForm.getAddress()));
+        return userRepository.findAddresses(loginDtoForm.getUserEmail())
+                .stream()
+                .filter(Address::isBanned)
+                .noneMatch(a ->
+                        Objects.equals(a.getIp(), loginDtoForm.getAddress()));
+    }
 
 
-        return null;
+    private boolean recalculateAddressStatus(final @NonNull String address) {
+
+        return recalculateAddressStatus(
+                addressRepository.findOneByIp(address)
+                        .orElse(new Address(address, NODE_CREATED)));
     }
 
     private boolean recalculateAddressStatus(final @NonNull Address address) {

@@ -1,21 +1,21 @@
 package com.algotraider.data.validation;
 
+import lombok.experimental.UtilityClass;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.springframework.stereotype.Service;
 
-@Service
+@UtilityClass
 public class ValidationService {
 
-    private final InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
-    private final EmailValidator mailValidator = EmailValidator.getInstance();
+    private static final InetAddressValidator ipAddressValidator = InetAddressValidator.getInstance();
+    private static final EmailValidator mailValidator = EmailValidator.getInstance();
 
-    public boolean validateIp(final String var) {
+    public static boolean validateIp(final String var) {
 
         return ipAddressValidator.isValid(var);
     }
 
-    public boolean validateEmail(final String var) {
+    public static boolean validateEmail(final String var) {
 
         return mailValidator.isValid(var);
     }
