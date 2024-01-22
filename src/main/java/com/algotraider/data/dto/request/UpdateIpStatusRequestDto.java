@@ -1,4 +1,4 @@
-package com.algotraider.data.dto;
+package com.algotraider.data.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddressCheckRequestDto {
+public class UpdateIpStatusRequestDto {
 
     private String source;
     private String address;
+    private Boolean status;
+    private long lastUpdated;
 }
