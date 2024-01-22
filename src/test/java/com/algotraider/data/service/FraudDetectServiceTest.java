@@ -1,9 +1,9 @@
 package com.algotraider.data.service;
 
-import com.algotraider.data.dto.AddressCheckRequestDto;
-import com.algotraider.data.dto.LoginFormDto;
-import com.algotraider.data.dto.UpdateIpStatusDto;
-import com.algotraider.data.dto.UserCheckRequestDto;
+import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.LoginFormRequestDto;
+import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
+import com.algotraider.data.dto.request.UserCheckRequestDto;
 import com.algotraider.data.entity.Address;
 import com.algotraider.data.entity.User;
 import com.algotraider.data.exception.InvalidIpAddressException;
@@ -50,7 +50,7 @@ public class FraudDetectServiceTest {
 
     @BeforeEach
     public void setup() {
-        service = new FraudDetectServiceImpl(userRepository, addressRepository);
+        service = new FraudDetectService(userRepository, addressRepository);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class FraudDetectServiceTest {
         when(addressRepository.save(any())).thenReturn(mockAddress);
         when(mockAddress.getIp()).thenReturn(IP_ADDRESS);
 
-        UpdateIpStatusDto dto = UpdateIpStatusDto.builder()
+        UpdateIpStatusRequestDto dto = UpdateIpStatusRequestDto.builder()
                 .source(TEST_SOURCE)
                 .address(IP_ADDRESS)
                 .status(Boolean.FALSE)
@@ -120,7 +120,7 @@ public class FraudDetectServiceTest {
 
     @Test
     void updateIpAddressStatusNegativeTest() {
-        UpdateIpStatusDto dto = UpdateIpStatusDto.builder()
+        UpdateIpStatusRequestDto dto = UpdateIpStatusRequestDto.builder()
                 .address("WR0NG")
                 .build();
 
@@ -135,7 +135,7 @@ public class FraudDetectServiceTest {
     @Test
     void processLoginNegativeTest() {
 
-        var dto = LoginFormDto.builder()
+        var dto = LoginFormRequestDto.builder()
                 .userEmail(MAIL_USER_COM)
                 .info("test-info")
                 .address(IP_ADDRESS)
@@ -162,7 +162,7 @@ public class FraudDetectServiceTest {
         when(userRepository.findAddresses(any())).thenReturn(List.of(address));
         when(mockAddress.isBanned()).thenReturn(Boolean.FALSE);
         when(addressRepository.findOneByIp(any())).thenReturn(Optional.of(mockAddress));
-        var dto = LoginFormDto.builder()
+        var dto = LoginFormRequestDto.builder()
                 .userEmail(MAIL_USER_COM)
                 .info("test-info")
                 .address(IP_ADDRESS)

@@ -1,4 +1,4 @@
-package com.algotraider.data.dto;
+package com.algotraider.data.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
