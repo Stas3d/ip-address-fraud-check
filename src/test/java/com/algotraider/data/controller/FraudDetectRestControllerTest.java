@@ -24,6 +24,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = MOCK)
 public class FraudDetectRestControllerTest {
 
+    private static final String TEST_SOURCE = "Requested from mock test source";
+    private static final String TEST_IP = "10.10.10.10";
+    private static final String IP_BANNED_STATUS_ENDPOINT = "/fraud-check/ip-banned-status";
+    private static final String USER_BANNED_STATUS_ENDPOINT = "/fraud-check/user-banned-status";
+    private static final String EMAIL = "user@user.com";
     private MockMvc mockMvc;
     @Mock
     private UserRepository userRepository;
@@ -42,16 +47,16 @@ public class FraudDetectRestControllerTest {
     void getUserBannedStatusControllerTest() {
 
         var dto = UserCheckRequestDto.builder()
-                .userEmail("user@user.com")
-                .source("Requested from mock test source")
+                .userEmail(EMAIL)
+                .source(TEST_SOURCE)
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/fraud-check/user-banned-status")
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_BANNED_STATUS_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.source").value("Requested from mock test source"))
-                .andExpect(jsonPath("$.userEmail").value("user@user.com"))
+                .andExpect(jsonPath("$.source").value(TEST_SOURCE))
+                .andExpect(jsonPath("$.userEmail").value(EMAIL))
                 .andExpect(jsonPath("$.userStatus").value(false))
                 .andExpect(jsonPath("$.timeStampMillis").exists());
     }
@@ -62,10 +67,10 @@ public class FraudDetectRestControllerTest {
 
         var dto = UserCheckRequestDto.builder()
                 .userEmail("INVALID")
-                .source("Requested from mock test source")
+                .source(TEST_SOURCE)
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/fraud-check/user-banned-status")
+        mockMvc.perform(MockMvcRequestBuilders.get(USER_BANNED_STATUS_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(dto)))
                 .andExpect(status().isBadRequest())
@@ -80,18 +85,37 @@ public class FraudDetectRestControllerTest {
     void getIpBannedStatusControllerTest() {
 
         var dto = AddressCheckRequestDto.builder()
-                .address("10.10.10.10")
-                .source("Requested from mock test source")
+                .address(TEST_IP)
+                .source(TEST_SOURCE)
                 .build();
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/fraud-check/ip-banned-status")
+        mockMvc.perform(MockMvcRequestBuilders.get(IP_BANNED_STATUS_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.source").value("Requested from mock test source"))
-                .andExpect(jsonPath("$.address").value("10.10.10.10"))
+                .andExpect(jsonPath("$.source").value(TEST_SOURCE))
+                .andExpect(jsonPath("$.address").value(TEST_IP))
                 .andExpect(jsonPath("$.ipBannedStatus").value(false))
                 .andExpect(jsonPath("$.timeStampMillis").exists());
+    }
+
+    @org.junit.jupiter.api.Test
+    @SneakyThrows
+    void getIpBannedStatusControllerNegativeTest() {
+
+        var dto = AddressCheckRequestDto.builder()
+                .address("999.9.999")
+                .source(TEST_SOURCE)
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.get(IP_BANNED_STATUS_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        Assertions.assertEquals("Invalid IP Address name : 999.9.999",
+                                result.getResolvedException().getMessage()));
+
     }
 
     private static String asJsonString(final Object obj) {
