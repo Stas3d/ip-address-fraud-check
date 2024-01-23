@@ -3,7 +3,7 @@ package com.algotraider.data.controller;
 import com.algotraider.data.dto.request.AddressCheckRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
-import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
+import com.algotraider.data.entity.Address;
 import com.algotraider.data.repo.AddressRepository;
 import com.algotraider.data.repo.UserRepository;
 import com.algotraider.data.service.FraudDetectService;
@@ -19,6 +19,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -36,10 +38,11 @@ public class FraudDetectRestControllerTest {
     private UserRepository userRepository;
     @Mock
     private AddressRepository addressRepository;
+    @Mock
+    private Address address;
 
     @BeforeEach
     void setup() {
-
         var service = new FraudDetectService(userRepository, addressRepository);
         this.mockMvc = MockMvcBuilders.standaloneSetup(new FraudDetectRestController(service)).build();
     }
@@ -79,7 +82,6 @@ public class FraudDetectRestControllerTest {
                 .andExpect(result ->
                         Assertions.assertEquals("Invalid Email : INVALID",
                                 result.getResolvedException().getMessage()));
-
     }
 
     @org.junit.jupiter.api.Test
@@ -117,12 +119,34 @@ public class FraudDetectRestControllerTest {
                 .andExpect(result ->
                         Assertions.assertEquals("Invalid IP Address name : 999.9.999",
                                 result.getResolvedException().getMessage()));
-
     }
 
     @org.junit.jupiter.api.Test
     @SneakyThrows
     void updateIpBannedStatusControllerTest() {
+
+        when(addressRepository.save(any())).thenReturn(address);
+        when(address.getIp()).thenReturn("10.10.10.10");
+
+        var dto = UpdateIpStatusRequestDto.builder()
+                .address("10.10.10.10")
+                .source(TEST_SOURCE)
+                .status(Boolean.FALSE)
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/fraud-check/update-ip-status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(dto)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.source").value(TEST_SOURCE))
+                .andExpect(jsonPath("$.address").value(TEST_IP))
+                .andExpect(jsonPath("$.updatedStatus").value(false))
+                .andExpect(jsonPath("$.timeStampMillis").exists());
+    }
+
+    @org.junit.jupiter.api.Test
+    @SneakyThrows
+    void updateIpBannedStatusWhenInternalDbErrorControllerTest() {
 
         var dto = UpdateIpStatusRequestDto.builder()
                 .address("10.10.10.10")
