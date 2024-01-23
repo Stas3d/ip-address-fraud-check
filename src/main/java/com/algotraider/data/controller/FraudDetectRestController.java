@@ -1,6 +1,8 @@
 package com.algotraider.data.controller;
 
+import com.algotraider.data.dto.request.AddressCheckRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
+import com.algotraider.data.dto.response.IpCheckResponseDto;
 import com.algotraider.data.dto.response.UserCheckResponseDto;
 import com.algotraider.data.service.FraudDetectService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,22 @@ public class FraudDetectRestController {
                         .source(dto.getSource())
                         .userEmail(dto.getUserEmail())
                         .userStatus(status)
+                        .timeStampMillis(Instant.now().toEpochMilli())
+                        .build(),
+                HttpStatus.OK);
+    }
+
+    @GetMapping("/ip-banned-status")
+    public @ResponseBody ResponseEntity<IpCheckResponseDto> getUserBannedStatus(
+            @RequestBody AddressCheckRequestDto dto) {
+
+        var status = service.checkIfIpAddressBanned(dto);
+
+        return new ResponseEntity<>(
+                IpCheckResponseDto.builder()
+                        .source(dto.getSource())
+                        .address(dto.getAddress())
+                        .ipBannedStatus(status)
                         .timeStampMillis(Instant.now().toEpochMilli())
                         .build(),
                 HttpStatus.OK);
