@@ -115,7 +115,7 @@ public class FraudDetectServiceTest {
                 .build();
 
         var result = service.updateIpAddressStatus(dto);
-        Assertions.assertEquals(IP_ADDRESS, result);
+        Assertions.assertEquals(IP_ADDRESS, result.getAddress());
     }
 
     @Test

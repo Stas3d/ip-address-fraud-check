@@ -4,11 +4,9 @@ import com.algotraider.data.dto.request.AddressCheckRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
+import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
 import com.algotraider.data.entity.Address;
-import com.algotraider.data.exception.IpBannedException;
-import com.algotraider.data.exception.InvalidMailException;
-import com.algotraider.data.exception.InvalidIpAddressException;
-import com.algotraider.data.exception.UserCheckNotAllowedException;
+import com.algotraider.data.exception.*;
 import com.algotraider.data.repo.UserRepository;
 import com.algotraider.data.repo.AddressRepository;
 import com.algotraider.data.validation.ValidationService;
@@ -20,6 +18,7 @@ import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Objects;
 
 @Service
@@ -58,7 +57,7 @@ public class FraudDetectService {
                 .orElse(Boolean.FALSE);
     }
 
-    public String updateIpAddressStatus(final @NonNull UpdateIpStatusRequestDto dto) {
+    public UpdateIpStatusResponseDto updateIpAddressStatus(final @NonNull UpdateIpStatusRequestDto dto) {
 
         if (!ValidationService.validateIp(dto.getAddress())) {
             throw new InvalidIpAddressException(dto.getAddress());
@@ -76,7 +75,18 @@ public class FraudDetectService {
             address.updateFailedAttempts();
         }
 
-        return addressRepository.save(address).getIp();
+        String ip;
+        try {
+            ip = addressRepository.save(address).getIp();
+        } catch (Exception ex) {
+            throw new InternalDbException();
+        }
+        return UpdateIpStatusResponseDto.builder()
+                .source(dto.getSource())
+                .address(ip)
+                .timeStampMillis(Instant.now().toEpochMilli())
+                .updatedStatus(dto.getStatus())
+                .build();
     }
 
     public boolean processLogin(final @NonNull LoginFormRequestDto dto) {

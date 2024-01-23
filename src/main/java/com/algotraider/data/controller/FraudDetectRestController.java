@@ -1,8 +1,10 @@
 package com.algotraider.data.controller;
 
 import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
 import com.algotraider.data.dto.response.IpCheckResponseDto;
+import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
 import com.algotraider.data.dto.response.UserCheckResponseDto;
 import com.algotraider.data.service.FraudDetectService;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +38,7 @@ public class FraudDetectRestController {
     }
 
     @GetMapping("/ip-banned-status")
-    public @ResponseBody ResponseEntity<IpCheckResponseDto> getUserBannedStatus(
+    public @ResponseBody ResponseEntity<IpCheckResponseDto> getIpBannedStatus(
             @RequestBody AddressCheckRequestDto dto) {
 
         var status = service.checkIfIpAddressBanned(dto);
@@ -49,5 +51,14 @@ public class FraudDetectRestController {
                         .timeStampMillis(Instant.now().toEpochMilli())
                         .build(),
                 HttpStatus.OK);
+    }
+
+    @PostMapping("/update-ip-status")
+    public @ResponseBody ResponseEntity<UpdateIpStatusResponseDto> updateIpAddressStatus(
+            @RequestBody UpdateIpStatusRequestDto requestDto) {
+
+        var responseDto = service.updateIpAddressStatus(requestDto);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
 }

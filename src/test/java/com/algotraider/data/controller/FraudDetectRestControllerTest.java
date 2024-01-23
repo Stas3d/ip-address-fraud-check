@@ -1,7 +1,9 @@
 package com.algotraider.data.controller;
 
 import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
+import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
 import com.algotraider.data.repo.AddressRepository;
 import com.algotraider.data.repo.UserRepository;
 import com.algotraider.data.service.FraudDetectService;
@@ -116,6 +118,44 @@ public class FraudDetectRestControllerTest {
                         Assertions.assertEquals("Invalid IP Address name : 999.9.999",
                                 result.getResolvedException().getMessage()));
 
+    }
+
+    @org.junit.jupiter.api.Test
+    @SneakyThrows
+    void updateIpBannedStatusControllerTest() {
+
+        var dto = UpdateIpStatusRequestDto.builder()
+                .address("10.10.10.10")
+                .source(TEST_SOURCE)
+                .status(Boolean.FALSE)
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/fraud-check/update-ip-status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(dto)))
+                .andExpect(status().is5xxServerError())
+                .andExpect(result ->
+                        Assertions.assertEquals("Internal Db error",
+                                result.getResolvedException().getMessage()));
+    }
+
+    @org.junit.jupiter.api.Test
+    @SneakyThrows
+    void updateIpBannedStatusControllerNegativeTest() {
+
+        var dto = UpdateIpStatusRequestDto.builder()
+                .address("999.9.999")
+                .source(TEST_SOURCE)
+                .status(Boolean.FALSE)
+                .build();
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/fraud-check/update-ip-status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(dto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(result ->
+                        Assertions.assertEquals("Invalid IP Address name : 999.9.999",
+                                result.getResolvedException().getMessage()));
     }
 
     private static String asJsonString(final Object obj) {
