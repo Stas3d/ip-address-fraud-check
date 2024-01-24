@@ -1,9 +1,11 @@
 package com.algotraider.data.controller;
 
 import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
 import com.algotraider.data.dto.response.IpCheckResponseDto;
+import com.algotraider.data.dto.response.LoginFormResponseDto;
 import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
 import com.algotraider.data.dto.response.UserCheckResponseDto;
 import com.algotraider.data.service.FraudDetectService;
@@ -58,6 +60,28 @@ public class FraudDetectRestController {
             @RequestBody UpdateIpStatusRequestDto requestDto) {
 
         var responseDto = service.updateIpAddressStatus(requestDto);
+
+        return new ResponseEntity<>(responseDto, HttpStatus.OK);
+    }
+
+    @GetMapping("/login")
+    public @ResponseBody ResponseEntity<LoginFormResponseDto> processLogin(
+            @RequestBody LoginFormRequestDto requestDto) {
+
+        Boolean result = service.processLogin(requestDto);
+
+        LoginFormResponseDto responseDto = LoginFormResponseDto.builder()
+                .status(result)
+                .userEmail(requestDto.getUserEmail())
+                .info(requestDto.getInfo())
+                .address(requestDto.getAddress())
+                .proxyAddress(requestDto.getProxyAddress())
+                .region(requestDto.getRegion())
+                .country(requestDto.getCountry())
+                .geo(requestDto.getGeo())
+                .loginTime(requestDto.getLoginTime())
+                .loginResponseTime(Instant.now().toEpochMilli())
+                .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
     }
