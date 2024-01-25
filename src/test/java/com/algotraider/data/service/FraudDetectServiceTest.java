@@ -25,7 +25,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class FraudDetectServiceTest {
+class FraudDetectServiceTest {
 
     private static final String MAIL_USER_COM = "mail@user.com";
     private static final String IP_ADDRESS = "23.23.23.23";
@@ -35,12 +35,10 @@ public class FraudDetectServiceTest {
     private static final Address address = new Address(IP_ADDRESS, META);
 
     private FraudDetectService service;
-
     @Value("${failed.address.threshold.value:10}")
     private Long failedThresholdValue;
     @Value("${calculation.threshold.value:5}")
     private Long calculationThreshold;
-
     @Mock
     private Address mockAddress;
     @Mock
@@ -162,6 +160,7 @@ public class FraudDetectServiceTest {
         when(userRepository.findAddresses(any())).thenReturn(List.of(address));
         when(mockAddress.isBanned()).thenReturn(Boolean.FALSE);
         when(addressRepository.findOneByIp(any())).thenReturn(Optional.of(mockAddress));
+
         var dto = LoginFormRequestDto.builder()
                 .userEmail(MAIL_USER_COM)
                 .info("test-info")
@@ -173,6 +172,7 @@ public class FraudDetectServiceTest {
                 .loginTime(System.currentTimeMillis())
                 .build();
 
-        service.processLogin(dto);
+        boolean result = service.processLogin(dto);
+        Assertions.assertFalse(result);
     }
 }

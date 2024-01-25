@@ -8,7 +8,7 @@ import org.testcontainers.containers.Neo4jContainer;
 
 @Disabled
 @DataNeo4jTest
-public class AddressAndUserRepositoryTest {
+class AddressAndUserRepositoryTest {
 
     private static Neo4jContainer<?> neo4jContainer;
 

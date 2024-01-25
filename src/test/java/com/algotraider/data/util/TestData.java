@@ -1,8 +1,10 @@
 package com.algotraider.data.util;
 
-
+import com.algotraider.data.dto.request.AddressCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
+import com.algotraider.data.dto.request.UserCheckRequestDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.experimental.UtilityClass;
 
 @UtilityClass
@@ -41,5 +43,31 @@ public class TestData {
                 .source(TEST_SOURCE)
                 .status(Boolean.FALSE)
                 .build();
+    }
+
+    public static UserCheckRequestDto createUserCheckRequestDto(final String mail) {
+
+        return UserCheckRequestDto.builder()
+                .userEmail(mail)
+                .source(TEST_SOURCE)
+                .build();
+    }
+
+    public static AddressCheckRequestDto createAddressCheckRequestDto(final String ip) {
+
+        return AddressCheckRequestDto.builder()
+                .address(ip)
+                .source(TEST_SOURCE)
+                .build();
+    }
+
+
+    public static String asJsonString(final Object obj) {
+
+        try {
+            return new ObjectMapper().writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

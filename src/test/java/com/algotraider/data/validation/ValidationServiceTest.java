@@ -3,7 +3,7 @@ package com.algotraider.data.validation;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class ValidationServiceTest {
+class ValidationServiceTest {
 
     @Test
     void testIpAddressValidStatus() {
