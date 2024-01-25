@@ -39,7 +39,6 @@ public class User {
     @Relationship(type = "LOGGED_FROM", direction = Relationship.Direction.INCOMING)
     private List<Address> addressList;
 
-    //TODO: refactor/test helper method
     public void associateNewAddress(final Address address) {
 
         if (addressList.isEmpty()) {

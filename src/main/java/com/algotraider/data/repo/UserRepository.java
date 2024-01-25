@@ -13,7 +13,6 @@ import java.util.List;
 public interface UserRepository extends Neo4jRepository<User, String> {
 
     @Query("MATCH (a:Address)-[:LOGGED_FROM]->(u:User) WHERE u.email = email RETURN a")
-    //Find all associated ip addresses with User
     List<Address> findAddresses(@Param("email") String email);
 
     User findByEmail(@Param("email") String email);
