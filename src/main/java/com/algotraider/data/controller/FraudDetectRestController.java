@@ -1,6 +1,6 @@
 package com.algotraider.data.controller;
 
-import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.IpCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
@@ -41,7 +41,7 @@ public class FraudDetectRestController {
 
     @GetMapping("/ip-banned-status")
     public @ResponseBody ResponseEntity<IpCheckResponseDto> getIpBannedStatus(
-            @RequestBody AddressCheckRequestDto dto) {
+            @RequestBody IpCheckRequestDto dto) {
 
         var status = service.checkIfIpAddressBanned(dto);
 

@@ -1,11 +1,12 @@
 package com.algotraider.data.service;
 
-import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.IpCheckRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
 import com.algotraider.data.entity.Address;
+import com.algotraider.data.entity.User;
 import com.algotraider.data.exception.*;
 import com.algotraider.data.repo.UserRepository;
 import com.algotraider.data.repo.AddressRepository;
@@ -41,12 +42,11 @@ public class FraudDetectService {
         if (!ValidationService.validateEmail(dto.getUserEmail())) {
             throw new InvalidMailException(dto.getUserEmail());
         }
-
         var user = userRepository.findByEmail(dto.getUserEmail());
-        return (user != null) ? user.isBanned() : Boolean.FALSE;
+        return user.map(User::isBanned).orElse(Boolean.FALSE);
     }
 
-    public boolean checkIfIpAddressBanned(final @NonNull AddressCheckRequestDto dto) {
+    public boolean checkIfIpAddressBanned(final @NonNull IpCheckRequestDto dto) {
 
         if (!ValidationService.validateIp(dto.getAddress())) {
             throw new InvalidIpAddressException(dto.getAddress());
@@ -100,9 +100,13 @@ public class FraudDetectService {
     }
 
     @SneakyThrows
-    private void checkIfUserExistsAndNotBlocked(final String userName) {
+    private void checkIfUserExistsAndNotBlocked(final String mail) {
 
-        if (userName.isBlank()) throw new UserCheckNotAllowedException();
+        if (mail.isBlank()) {
+            throw new UserCheckNotAllowedException();
+        }
+        userRepository.findByEmail(mail)
+                .orElseThrow(UserNotFoundException::new);
     }
 
     private void saveNewIpUserRelationIfRequired(final LoginFormRequestDto dto) {
@@ -121,9 +125,13 @@ public class FraudDetectService {
             var dbAddress = addressRepository.findOneByIp(ip)
                     .orElse(new Address(ip, NODE_CREATED));
 
-            var linkedUser = userRepository.findByEmail(mail);
-            linkedUser.associateNewAddress(dbAddress);
-            userRepository.save(linkedUser);
+            var linkedUserOptional = userRepository.findByEmail(mail);
+
+            if (linkedUserOptional.isPresent()) {
+                var linkedUser = linkedUserOptional.get();
+                linkedUser.associateNewAddress(dbAddress);
+                userRepository.save(linkedUser);
+            }
         }
     }
 
@@ -134,14 +142,22 @@ public class FraudDetectService {
                 .orElseThrow(IpBannedException::new);
     }
 
-    //Todo
-    private Boolean validateUserLinkedIpsNotBanned(final @NonNull LoginFormRequestDto dto) {
 
-        return userRepository.findAddresses(dto.getUserEmail())
+    private void validateUserLinkedIpsNotBanned(final @NonNull LoginFormRequestDto dto) {
+
+        String requestIp = dto.getAddress();
+
+        userRepository.findAddresses(dto.getUserEmail())
                 .stream()
+                .filter(Objects::nonNull)
                 .filter(Address::isBanned)
-                .noneMatch(a ->
-                        Objects.equals(a.getIp(), dto.getAddress()));
+                .map(Address::getIp)
+                .filter(address ->
+                        Objects.equals(address, requestIp))
+                .findAny()
+                .ifPresent(a -> {
+                    throw new IpBannedException(requestIp);
+                });
     }
 
 
