@@ -1,6 +1,6 @@
 package com.algotraider.data.util;
 
-import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.IpCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
@@ -53,9 +53,9 @@ public class TestData {
                 .build();
     }
 
-    public static AddressCheckRequestDto createAddressCheckRequestDto(final String ip) {
+    public static IpCheckRequestDto createAddressCheckRequestDto(final String ip) {
 
-        return AddressCheckRequestDto.builder()
+        return IpCheckRequestDto.builder()
                 .address(ip)
                 .source(TEST_SOURCE)
                 .build();

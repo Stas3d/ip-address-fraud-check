@@ -1,6 +1,6 @@
 package com.algotraider.data.service;
 
-import com.algotraider.data.dto.request.AddressCheckRequestDto;
+import com.algotraider.data.dto.request.IpCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.request.UserCheckRequestDto;
@@ -9,6 +9,7 @@ import com.algotraider.data.entity.User;
 import com.algotraider.data.exception.InvalidIpAddressException;
 import com.algotraider.data.exception.InvalidMailException;
 import com.algotraider.data.exception.IpBannedException;
+import com.algotraider.data.exception.UserNotFoundException;
 import com.algotraider.data.repo.AddressRepository;
 import com.algotraider.data.repo.UserRepository;
 import org.junit.jupiter.api.*;
@@ -32,6 +33,7 @@ class FraudDetectServiceTest {
     private static final String META = "test-meta-info";
     private static final String TEST_SOURCE = "test-source";
     private static final User user = new User(IP_ADDRESS, MAIL_USER_COM, System.currentTimeMillis());
+    private static final Optional<User> userOptional = Optional.of(user);
     private static final Address address = new Address(IP_ADDRESS, META);
 
     private FraudDetectService service;
@@ -62,7 +64,8 @@ class FraudDetectServiceTest {
     @Test
     void checkIfUserBannedWithStatusFromDbTest() {
 
-        when(userRepository.findByEmail(any())).thenReturn(user);
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
+//        when(userOptional.get()).thenReturn(user);
         var dto = new UserCheckRequestDto(TEST_SOURCE, MAIL_USER_COM);
         var result = service.checkIfUserBanned(dto);
         Assertions.assertFalse(result);
@@ -82,14 +85,14 @@ class FraudDetectServiceTest {
 
     @Test
     void checkIfIpAddressBannedTest() {
-        var dto = new AddressCheckRequestDto(TEST_SOURCE, IP_ADDRESS);
+        var dto = new IpCheckRequestDto(TEST_SOURCE, IP_ADDRESS);
         var result = service.checkIfIpAddressBanned(dto);
         Assertions.assertFalse(result);
     }
 
     @Test
     void checkIfIpAddressBannedNegativeTest() {
-        var dto = new AddressCheckRequestDto(TEST_SOURCE, "WR0NG");
+        var dto = new IpCheckRequestDto(TEST_SOURCE, "WR0NG");
 
         var exception = assertThrows(
                 InvalidIpAddressException.class,
@@ -132,6 +135,8 @@ class FraudDetectServiceTest {
 
     @Test
     void processLoginNegativeTest() {
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
+
 
         var dto = LoginFormRequestDto.builder()
                 .userEmail(MAIL_USER_COM)
@@ -154,7 +159,33 @@ class FraudDetectServiceTest {
     }
 
     @Test
+    void processLoginNotFoundNegativeTest() {
+
+
+        var dto = LoginFormRequestDto.builder()
+                .userEmail(MAIL_USER_COM)
+                .info("test-info")
+                .address(IP_ADDRESS)
+                .proxyAddress("")
+                .region("UA")
+                .country("Ukraine")
+                .geo("12345678;12345678")
+                .loginTime(System.currentTimeMillis())
+                .build();
+
+        address.setUser(user);
+        when(userRepository.findAddresses(any())).thenReturn(List.of(address));
+
+        assertThrows(UserNotFoundException.class,
+                () -> {
+                    service.processLogin(dto);
+                });
+    }
+
+    @Test
     void processLoginTest() {
+
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
 
         address.setUser(user);
         when(userRepository.findAddresses(any())).thenReturn(List.of(address));

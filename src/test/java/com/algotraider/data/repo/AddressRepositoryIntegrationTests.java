@@ -8,14 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.neo4j.DataNeo4jTest;
 
 @DataNeo4jTest
-class AddressRepositoryTests {
+class AddressRepositoryIntegrationTests {
 
     @Autowired
     private AddressRepository repository;
 
     @Test
     @Disabled
-    void testExample() {
+    void exampleTest() {
 
         repository.save(new Address("123.156.189.1", "test-meta"));
         var address = this.repository.findOneByMeta("test-meta");
