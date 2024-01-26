@@ -10,4 +10,8 @@ public class UserNotFoundException extends RuntimeException {
     public UserNotFoundException() {
         super();
     }
+
+    public UserNotFoundException(final String msg) {
+        super("User with mail not found : " + msg);
+    }
 }

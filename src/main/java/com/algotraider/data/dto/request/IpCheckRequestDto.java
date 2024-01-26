@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class AddressCheckRequestDto {
+public class IpCheckRequestDto {
 
     private String source;
     private String address;

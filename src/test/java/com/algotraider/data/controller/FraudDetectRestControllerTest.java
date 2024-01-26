@@ -35,6 +35,8 @@ class FraudDetectRestControllerTest {
     private Address mockedAddress;
     @Mock
     private User mockedUser;
+    @Mock
+    private Optional<User> userOptional;
 
     @BeforeEach
     void setup() {
@@ -163,7 +165,8 @@ class FraudDetectRestControllerTest {
         when(addressRepository.findOneByIp(any())).thenReturn(Optional.of(mockedAddress));
         when(mockedAddress.getIp()).thenReturn(TEST_IP);
         when(mockedAddress.isBanned()).thenReturn(Boolean.FALSE);
-        when(userRepository.findByEmail(any())).thenReturn(mockedUser);
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
+        when(userOptional.get()).thenReturn(mockedUser);
         doNothing().when(mockedUser).associateNewAddress(any());
 
         var requestDto = createLoginFormRequestDto();
@@ -185,11 +188,23 @@ class FraudDetectRestControllerTest {
 
     @Test
     @SneakyThrows
-    void processLoginNegativeControllerTest() {
+    void processLoginUserForbiddenControllerTest() {
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
+        when(userOptional.get()).thenReturn(mockedUser);
 
         mockMvc.perform(MockMvcRequestBuilders.get(CHECK_LOGIN_ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(createLoginFormRequestDto())))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @SneakyThrows
+    void processLoginUserNotFoundControllerTest() {
+
+        mockMvc.perform(MockMvcRequestBuilders.get(CHECK_LOGIN_ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(createLoginFormRequestDto())))
+                .andExpect(status().isNotFound());
     }
 }

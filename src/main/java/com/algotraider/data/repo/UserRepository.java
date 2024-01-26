@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends Neo4jRepository<User, String> {
@@ -15,5 +16,7 @@ public interface UserRepository extends Neo4jRepository<User, String> {
     @Query("MATCH (a:Address)-[:LOGGED_FROM]->(u:User) WHERE u.email = email RETURN a")
     List<Address> findAddresses(@Param("email") String email);
 
-    User findByEmail(@Param("email") String email);
+//    User findByEmail(@Param("email") String email);
+
+    Optional<User> findByEmail(@Param("email") String email);
 }
