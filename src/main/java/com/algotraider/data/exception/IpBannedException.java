@@ -10,4 +10,8 @@ public class IpBannedException extends RuntimeException {
     public IpBannedException() {
         super();
     }
+
+    public IpBannedException(final String ip) {
+        super("Address is currently blocked : " + ip);
+    }
 }
