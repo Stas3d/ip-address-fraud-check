@@ -57,7 +57,7 @@ class FraudDetectServiceTest {
     void checkIfUserBannedTest() {
 
         var dto = new UserCheckRequestDto(TEST_SOURCE, MAIL_USER_COM);
-        var result = service.checkIfUserBanned(dto);
+        var result = service.checkIfUserBanned(dto.getUserEmail());
         Assertions.assertFalse(result);
     }
 
@@ -65,9 +65,8 @@ class FraudDetectServiceTest {
     void checkIfUserBannedWithStatusFromDbTest() {
 
         when(userRepository.findByEmail(any())).thenReturn(userOptional);
-//        when(userOptional.get()).thenReturn(user);
         var dto = new UserCheckRequestDto(TEST_SOURCE, MAIL_USER_COM);
-        var result = service.checkIfUserBanned(dto);
+        var result = service.checkIfUserBanned(dto.getUserEmail());
         Assertions.assertFalse(result);
     }
 
@@ -78,7 +77,7 @@ class FraudDetectServiceTest {
         var exception = assertThrows(
                 InvalidMailException.class,
                 () -> {
-                    service.checkIfUserBanned(dto);
+                    service.checkIfUserBanned(dto.getUserEmail());
                 });
         Assertions.assertTrue(exception.getMessage().contains("Invalid Email : WR0NG@MAIL"));
     }
