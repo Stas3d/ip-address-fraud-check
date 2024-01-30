@@ -1,7 +1,6 @@
 package com.algotraider.data.service;
 
 import com.algotraider.data.dto.request.IpCheckRequestDto;
-import com.algotraider.data.dto.request.UserCheckRequestDto;
 import com.algotraider.data.dto.request.LoginFormRequestDto;
 import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
 import com.algotraider.data.dto.response.UpdateIpStatusResponseDto;
@@ -20,7 +19,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +38,12 @@ public class FraudDetectService {
     @Value("${calculation.threshold.value:5}")
     private Long calculationThreshold;
 
-    public boolean checkIfUserBanned(final @NonNull UserCheckRequestDto dto) {
+    public boolean checkIfUserBanned(final @NonNull String mail) {
 
-        if (!ValidationService.validateEmail(dto.getUserEmail())) {
-            throw new InvalidMailException(dto.getUserEmail());
+        if (!ValidationService.validateEmail(mail)) {
+            throw new InvalidMailException(mail);
         }
-        var user = userRepository.findByEmail(dto.getUserEmail());
+        var user = userRepository.findByEmail(mail);
         return user.map(User::isBanned).orElse(Boolean.FALSE);
     }
 
@@ -97,6 +98,19 @@ public class FraudDetectService {
         saveNewIpUserRelationIfRequired(dto);
 
         return recalculateAddressStatus(dto.getAddress());
+    }
+
+    @SneakyThrows
+    public List<String> linkedIpsStatForUser(@NonNull final String email) {
+
+        checkIfUserExistsAndNotBlocked(email);
+
+        return userRepository.findAddresses(email)
+                .stream()
+                .filter(Objects::nonNull)
+//                .filter(Address::isBanned)
+                .map(Address::getIp)
+                .collect(Collectors.toList());
     }
 
     @SneakyThrows
