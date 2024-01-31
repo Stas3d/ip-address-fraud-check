@@ -17,7 +17,6 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.Optional;
 
 import static com.algotraider.data.util.TestData.*;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.MOCK;
@@ -206,5 +205,30 @@ class FraudDetectRestControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(createLoginFormRequestDto())))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @SneakyThrows
+    void processLinkedIpsStatControllerTest() {
+
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
+        when(userOptional.get()).thenReturn(mockedUser);
+        doNothing().when(mockedUser).associateNewAddress(any());
+        when(addressRepository.findOneByIp(any())).thenReturn(Optional.of(mockedAddress));
+        when(mockedAddress.getIp()).thenReturn(TEST_IP);
+        when(mockedAddress.isBanned()).thenReturn(Boolean.FALSE);
+
+        var requestDto = createLinkedIpStatFormRequestDto("user@user.com");
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/fraud-check/linked-ips-stat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(requestDto)))
+                .andExpect(status().isOk())
+
+                .andExpect(jsonPath("$.source").value("Requested from mock test source"))
+                .andExpect(jsonPath("$.status").value(false))
+                .andExpect(jsonPath("$.email").value(EMAIL))
+                .andExpect(jsonPath("$.timeStamp").exists())
+                .andExpect(jsonPath("$.linkedIpsList").isEmpty());
     }
 }

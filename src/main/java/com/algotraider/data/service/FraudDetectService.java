@@ -100,7 +100,6 @@ public class FraudDetectService {
         return recalculateAddressStatus(dto.getAddress());
     }
 
-    @SneakyThrows
     public List<String> linkedIpsStatForUser(@NonNull final String email) {
 
         checkIfUserExistsAndNotBlocked(email);

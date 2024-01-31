@@ -14,8 +14,8 @@ import java.util.List;
 public class LinkedIpsStatResponseDto {
 
     private String source;
-    private String userEmail;
-    private Boolean userStatus;
-    private Long timeStampMillis;
-    private List<String> linkedIps;
+    private String email;
+    private Boolean status;
+    private Long timeStamp;
+    private List<String> linkedIpsList;
 }
