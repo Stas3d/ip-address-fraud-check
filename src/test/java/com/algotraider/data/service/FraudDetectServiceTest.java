@@ -205,4 +205,21 @@ class FraudDetectServiceTest {
         boolean result = service.processLogin(dto);
         Assertions.assertFalse(result);
     }
+
+    @Test
+    void linkedIpsStatForUserTest() {
+
+        when(userRepository.findByEmail(any())).thenReturn(userOptional);
+
+        address.setUser(user);
+        when(userRepository.findAddresses(any())).thenReturn(List.of(address));
+        when(mockAddress.isBanned()).thenReturn(Boolean.FALSE);
+        when(addressRepository.findOneByIp(any())).thenReturn(Optional.of(mockAddress));
+
+        var result = service.linkedIpsStatForUser(MAIL_USER_COM);
+
+        Assertions.assertFalse(result.isEmpty());
+        Assertions.assertEquals(1, result.size());
+        Assertions.assertTrue(result.get(0).contains(IP_ADDRESS));
+    }
 }

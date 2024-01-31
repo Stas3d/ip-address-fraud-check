@@ -102,10 +102,10 @@ public class FraudDetectRestController {
         var linkedIpsList = service.linkedIpsStatForUser(requestDto.getUserEmail());
         var responseDto = LinkedIpsStatResponseDto.builder()
                 .source(requestDto.getSource())
-                .userEmail(requestDto.getUserEmail())
-                .userStatus(status)
-                .timeStampMillis(Instant.now().toEpochMilli())
-                .linkedIps(linkedIpsList)
+                .email(requestDto.getUserEmail())
+                .status(status)
+                .timeStamp(Instant.now().toEpochMilli())
+                .linkedIpsList(linkedIpsList)
                 .build();
 
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

@@ -1,9 +1,6 @@
 package com.algotraider.data.util;
 
-import com.algotraider.data.dto.request.IpCheckRequestDto;
-import com.algotraider.data.dto.request.LoginFormRequestDto;
-import com.algotraider.data.dto.request.UpdateIpStatusRequestDto;
-import com.algotraider.data.dto.request.UserCheckRequestDto;
+import com.algotraider.data.dto.request.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.experimental.UtilityClass;
 
@@ -21,6 +18,14 @@ public class TestData {
     public static final String UA = "UA";
     public static final String COUNTRY = "Ukraine";
     public static final String GEO = "12345678;12345678";
+
+    public static StatRequestDto createLinkedIpStatFormRequestDto(final String mail) {
+
+        return StatRequestDto.builder()
+                .userEmail(mail)
+                .source(TEST_SOURCE)
+                .build();
+    }
 
     public static LoginFormRequestDto createLoginFormRequestDto() {
 
