@@ -231,4 +231,16 @@ class FraudDetectRestControllerTest {
                 .andExpect(jsonPath("$.timeStamp").exists())
                 .andExpect(jsonPath("$.linkedIpsList").isEmpty());
     }
+
+    @Test
+    @SneakyThrows
+    void processLinkedIpsStatControllerNegativeTest() {
+
+        var requestDto = createLinkedIpStatFormRequestDto("no@user.com");
+
+        mockMvc.perform(MockMvcRequestBuilders.get("/fraud-check/linked-ips-stat")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(asJsonString(requestDto)))
+                .andExpect(status().isNotFound());
+    }
 }
