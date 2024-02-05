@@ -107,7 +107,6 @@ public class FraudDetectService {
         return userRepository.findAddresses(email)
                 .stream()
                 .filter(Objects::nonNull)
-//                .filter(Address::isBanned)
                 .map(Address::getIp)
                 .collect(Collectors.toList());
     }
